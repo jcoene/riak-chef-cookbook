@@ -18,6 +18,10 @@
 #
 include_attribute "riak::package"
 
+# allow overriding fqdn and ipaddress
+default['riak']['hostname'] = node['fqdn']
+default['riak']['ipaddresses'] = [node['ipaddress']]
+
 # install method
 default['riak']['install_method'] = "package"
 
@@ -29,7 +33,7 @@ default['riak']['lib_dir'] = "/usr/lib/riak"
 default['riak']['log_dir'] = "/var/log/riak"
 
 # vm.args
-default['riak']['args']['-name'] = "riak@#{node['fqdn']}"
+default['riak']['args']['-name'] = "riak@#{node['riak']['hostname']}"
 default['riak']['args']['-setcookie'] = "riak"
 default['riak']['args']['+K'] = true
 default['riak']['args']['+A'] = 64
@@ -62,21 +66,21 @@ default['riak']['config']['kernel']['inet_dist_listen_max'] = 7999
 # riak_api
 #default['riak']['config']['riak_api']['pb_backlog'] = 64
 if node['riak']['package']['version']['major'].to_i >= 1 && node['riak']['package']['version']['minor'].to_i >= 4
-  default['riak']['config']['riak_api']['pb'] = [[node['ipaddress'].to_erl_string, 8087].to_erl_tuple]
+  default['riak']['config']['riak_api']['pb'] = node['riak']['ipaddresses'].map {|addr| [addr.to_erl_string, 8087].to_erl_tuple }
 else
-  default['riak']['config']['riak_api']['pb_ip'] = node['ipaddress'].to_erl_string
+  default['riak']['config']['riak_api']['pb_ip'] = node['riak']['ipaddresses'][0].to_erl_string
   default['riak']['config']['riak_api']['pb_port'] = 8087
 end
 
 # riak_core
 default['riak']['config']['riak_core']['ring_state_dir'] = "#{node['riak']['data_dir']}/ring".to_erl_string
 default['riak']['config']['riak_core']['ring_creation_size'] = 64
-default['riak']['config']['riak_core']['http'] = [[node['ipaddress'].to_erl_string, 8098].to_erl_tuple]
+default['riak']['config']['riak_core']['http'] = node['riak']['ipaddresses'].map {|addr| [addr.to_erl_string, 8098].to_erl_tuple }
 #default['riak']['config']['riak_core']['https'] = [["#{node['ipaddress']}".to_erl_string, 8098].to_erl_tuple]
 #default['riak']['config']['riak_core']['ssl'] = [["certfile", "./etc/cert.pem".to_erl_string].to_erl_tuple, ["keyfile", "./etc/key.pem".to_erl_string].to_erl_tuple]
 default['riak']['config']['riak_core']['handoff_port'] = 8099
 #default['riak']['config']['riak_core']['handoff_ssl_options'] = [["certfile", "tmp/erlserver.pem".to_erl_string].to_erl_tuple]
-default['riak']['config']['riak_core']['cluster_mgr'] = [node['ipaddress'].to_erl_string, 9085].to_erl_tuple
+default['riak']['config']['riak_core']['cluster_mgr'] = [node['riak']['ipaddresses'][0].to_erl_string, 9085].to_erl_tuple
 default['riak']['config']['riak_core']['dtrace_support'] = false
 #default['riak']['config']['riak_core']['enable_health_checks'] = true
 default['riak']['config']['riak_core']['platform_bin_dir'] = node['riak']['bin_dir'].to_erl_string
