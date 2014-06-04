@@ -1,3 +1,25 @@
+## v2.4.12:
+
+* Increase default `ulimit` from `4096` to `65536`.
+
+## v2.4.11:
+
+* Ensure SNMP directory is created when customer `data_dir` is provided.
+
+## v2.4.10:
+
+* Fix invalid default Multi backend definitions.
+
+## v2.4.9:
+
+* Revert errant change of Riak node name from FQDN to IP address.
+
+## v2.4.8:
+
+* Make default for `cs_version` be `1.4.5`
+* Add support for Ubuntu 13.04 (Raring).
+* Add support for Amazon Linux (2014.03).
+
 ## v2.4.7:
 
 * Ensure /etc/default/riak is regenerated when open file limits change.

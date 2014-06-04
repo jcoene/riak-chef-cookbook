@@ -56,7 +56,7 @@ else
 
     apt_repository "basho" do
       uri "http://apt.basho.com"
-      distribution node['lsb']['codename']
+      distribution (node['lsb']['codename'] == "raring" ? "precise" : node['lsb']['codename'])
       components ["main"]
       key "http://apt.basho.com/gpg/basho.apt.key"
     end
@@ -66,8 +66,14 @@ else
       version package_version
     end
 
-  when "centos", "redhat"
+  when "centos", "redhat", "amazon"
     include_recipe "yum"
+
+    if node['platform'] == "amazon" && platform_version >= 2013
+      platform_version = 6
+    elsif node['platform'] == "amazon"
+      platform_version = 5
+    end
 
     yum_repository "basho" do
       description "Basho Stable Repo"
